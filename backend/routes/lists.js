@@ -25,7 +25,7 @@ module.exports = function (express, pool, jwt, secret) {
         let connection = await pool.getConnection();
 
         let rows = await connection.query(
-          "select l.id as listId, l.name from users join lists l on users.id = l.userId where users.username = ?;",
+          "select l.id, l.name from users join lists l on users.id = l.userId where users.username = ?;",
           req.user.username
         );
         connection.release();
@@ -52,6 +52,22 @@ module.exports = function (express, pool, jwt, secret) {
       }
     });
 
+  router.route("/share/:id").get(async function (req, res) {
+    try {
+      let connection = await pool.getConnection();      
+
+      let rows = await connection.query(
+        "select lists.id as listId, userId, name, t.id as todoId, text, completed from lists left join todos t on lists.id = t.listId where lists.id = ?;",
+        req.params.id
+      );
+      connection.release();
+      res.json(rows);
+    } catch (error) {
+      console.log(error);
+      return res.json({ code: 100, status: "Error get lists" });
+    }
+  });
+
   router
     .route("/:id")
     .get(authenticateToken, async function (req, res) {
@@ -59,7 +75,7 @@ module.exports = function (express, pool, jwt, secret) {
         let connection = await pool.getConnection();
 
         let rows = await connection.query(
-          "select lists.id as listId, userId, name, t.id as todoId, text from lists left join todos t on lists.id = t.listId where lists.id = ?;",
+          "select lists.id as listId, userId, name, t.id as todoId, text, completed from lists left join todos t on lists.id = t.listId where lists.id = ?;",
           req.params.id
         );
         connection.release();

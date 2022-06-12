@@ -22,6 +22,7 @@ module.exports = function (express, pool, jwt, secret) {
     const todo = {
       text: req.body.text,
       listId: req.body.listId,
+      completed: req.body.completed,
     };
 
     try {
@@ -41,7 +42,7 @@ module.exports = function (express, pool, jwt, secret) {
         let connection = await pool.getConnection();
 
         let rows = await connection.query(
-          "select id, listId, text from todos where id = ?;",
+          "select id, listId, text, completed from todos where id = ?;",
           req.params.id
         );
         connection.release();
@@ -52,8 +53,9 @@ module.exports = function (express, pool, jwt, secret) {
         return res.json({ code: 100, status: "Error get todos" });
       }
     })
-    .put(authenticateToken, async function (req, res) {
+    .put(authenticateToken, async function (req, res) {      
       const todo = {
+        completed: req.body.completed,
         text: req.body.text,
         listId: req.body.listId,
       };
@@ -61,8 +63,8 @@ module.exports = function (express, pool, jwt, secret) {
       try {
         let connection = await pool.getConnection();
         let query = await connection.query(
-          "update todos set text = ? where id = ?;",
-          [todo.text, req.params.id]
+          "update todos set completed = ? where id = ?;",
+          [todo.completed, req.params.id]
         );
         connection.release();
         res.json({ status: "OK", changedRows: query.changedRows });
