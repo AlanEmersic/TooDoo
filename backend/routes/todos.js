@@ -29,6 +29,7 @@ module.exports = function (express, pool, jwt, secret) {
       let connection = await pool.getConnection();
       let query = await connection.query("insert into todos set ?;", todo);
       connection.release();
+
       res.json({ status: "OK", insertId: query.insertId });
     } catch (error) {
       console.log(error);
@@ -67,6 +68,7 @@ module.exports = function (express, pool, jwt, secret) {
           [todo.completed, req.params.id]
         );
         connection.release();
+
         res.json({ status: "OK", changedRows: query.changedRows });
       } catch (error) {
         console.log(error);
@@ -80,6 +82,7 @@ module.exports = function (express, pool, jwt, secret) {
           req.params.id
         );
         connection.release();
+        
         res.json({ status: "OK", affectedRows: query.affectedRows });
       } catch (error) {
         console.log(error);

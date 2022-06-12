@@ -40,12 +40,14 @@ module.exports = function (express, pool, jwt, secret) {
       const list = {
         name: req.body.name,
         userId: req.user.id,
+        uuid: req.body.uuid,
       };
 
       try {
         let connection = await pool.getConnection();
         let query = await connection.query("insert into lists set ?;", list);
         connection.release();
+
         res.json({ status: "OK", insertId: query.insertId });
       } catch (error) {
         console.log(error);
@@ -54,17 +56,18 @@ module.exports = function (express, pool, jwt, secret) {
 
   router.route("/share/:id").get(async function (req, res) {
     try {
-      let connection = await pool.getConnection();      
+      let connection = await pool.getConnection();
 
       let rows = await connection.query(
-        "select lists.id as listId, userId, name, t.id as todoId, text, completed from lists left join todos t on lists.id = t.listId where lists.id = ?;",
+        "select lists.id as listId, userId, name, t.id as todoId, text, completed from lists left join todos t on lists.id = t.listId where lists.uuid = ?;",
         req.params.id
       );
       connection.release();
+
       res.json(rows);
     } catch (error) {
       console.log(error);
-      return res.json({ code: 100, status: "Error get lists" });
+      return res.json({ code: 100, status: "Error get share" });
     }
   });
 
@@ -75,7 +78,7 @@ module.exports = function (express, pool, jwt, secret) {
         let connection = await pool.getConnection();
 
         let rows = await connection.query(
-          "select lists.id as listId, userId, name, t.id as todoId, text, completed from lists left join todos t on lists.id = t.listId where lists.id = ?;",
+          "select lists.id as listId, userId, name, uuid, t.id as todoId, text, completed from lists left join todos t on lists.id = t.listId where lists.id = ?;",
           req.params.id
         );
         connection.release();
@@ -99,6 +102,7 @@ module.exports = function (express, pool, jwt, secret) {
           [list.name, req.params.id]
         );
         connection.release();
+
         res.json({ status: "OK", changedRows: query.changedRows });
       } catch (error) {
         console.log(error);
@@ -112,6 +116,7 @@ module.exports = function (express, pool, jwt, secret) {
           req.params.id
         );
         connection.release();
+        
         res.json({ status: "OK", affectedRows: query.affectedRows });
       } catch (error) {
         console.log(error);

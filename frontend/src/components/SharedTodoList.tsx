@@ -23,10 +23,9 @@ export default function SharedTodoList() {
 
   const shareTodoList = async () => {
     setIsFetching(true);
-    const id = uuid?.slice(uuid?.lastIndexOf("-") + 1);    
 
     await api
-      .get(`/lists/share/${id}`)
+      .get(`/lists/share/${uuid}`)
       .then((res) => {
         setTodos(res.data);
       })

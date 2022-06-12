@@ -10,6 +10,7 @@ import {
 } from "@mui/material";
 import Backdrop from "@mui/material/Backdrop";
 import api from "../utils/api";
+import { v4 as uuidv4 } from "uuid";
 
 const style = {
   position: "absolute",
@@ -40,8 +41,10 @@ export default function TodoListForm({
     event.preventDefault();
 
     const postList = async () => {
+      const uuid = uuidv4();
+
       await api
-        .post("/lists", { name })
+        .post("/lists", { name, uuid })
         .then((res: any) => {
           setOpenTodoListForm(false);
           getLists();

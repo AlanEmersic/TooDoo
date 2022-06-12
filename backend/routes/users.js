@@ -15,8 +15,8 @@ module.exports = function (express, pool, jwt, secret) {
 
       let connection = await pool.getConnection();
       let queryUser = await connection.query("insert into users set ?;", user);
-
       connection.release();
+      
       res.json(queryUser.insertId);
     } catch (error) {
       console.log(error);

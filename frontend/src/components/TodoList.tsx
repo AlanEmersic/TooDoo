@@ -18,7 +18,6 @@ import CancelIcon from "@mui/icons-material/Cancel";
 import CheckIcon from "@mui/icons-material/Check";
 import ShareIcon from "@mui/icons-material/Share";
 import PageNotFound from "./PageNotFound";
-import { v4 as uuidv4 } from "uuid";
 
 export default function TodoList() {
   const [todos, setTodos] = useState<any>([]);
@@ -128,15 +127,15 @@ export default function TodoList() {
   };
 
   const handleShare = (event: any) => {
-    const url = "http://localhost:3000/share/" + uuidv4() + `-${id}`;
-    console.log(url);
+    const uuid = todos[0].uuid;
+    const url = "http://localhost:3000/share/" + uuid;    
     navigator.clipboard.writeText(url);
-    setIsShareLink(true);    
+    setIsShareLink(true);
   };
 
   return isFetching ? (
     <Skeleton variant="rectangular" width="100%" height="100%" />
-  ) : todos?.length === 0 ? (
+  ) : todos?.length === 0 || !userCanEdit ? (
     <PageNotFound />
   ) : (
     <>
@@ -151,16 +150,14 @@ export default function TodoList() {
           {todos && todos[0]?.name}{" "}
           <Button
             variant="outlined"
-            onClick={handleEditList}
-            disabled={!userCanEdit}
+            onClick={handleEditList}            
           >
             <EditIcon /> Edit
           </Button>
           <Button
             sx={{ margin: "0 1rem" }}
             variant="outlined"
-            onClick={handleShare}
-            disabled={!userCanEdit}
+            onClick={handleShare}            
           >
             <ShareIcon /> Share
           </Button>
@@ -205,12 +202,11 @@ export default function TodoList() {
               label="Add a to-do"
               variant="outlined"
               onChange={handleInputText}
-              disabled={!userCanEdit}
             />
             <Button
               variant="outlined"
               type="submit"
-              disabled={!inputText || !userCanEdit}
+              disabled={!inputText}
             >
               <AddIcon />
             </Button>
@@ -243,7 +239,6 @@ export default function TodoList() {
                     }}
                   >
                     <Checkbox
-                      disabled={!userCanEdit}
                       checked={!!t.completed}
                       onClick={(e) => handleTodoCheckbox(e, t)}
                     />
