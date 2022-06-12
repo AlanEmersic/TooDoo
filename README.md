@@ -21,4 +21,6 @@ Project was created with React, Express and MySQL
 
 - Install all packages using command: `npm i` or `npm install`
 
+- Configure `config.js` for MySQL database
+
 - Run using command: `npm start`
