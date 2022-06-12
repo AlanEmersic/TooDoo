@@ -79,12 +79,7 @@ export default function TodoList() {
       .post("/todos", todo)
       .then((res) => {
         setInputText(null);
-
-        if (todos?.[0]?.todoId === null) {
-          getTodos();
-        } else {
-          setTodos([...todos, todo]);
-        }
+        getTodos();
       })
       .catch((err) => {
         console.log("Add todo error: ", err.response);
