@@ -1,18 +1,21 @@
-import React from "react";
+import AddTaskIcon from "@mui/icons-material/AddTask";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import Container from "@mui/material/Container";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
-import Container from "@mui/material/Container";
-import Button from "@mui/material/Button";
-import AddTaskIcon from "@mui/icons-material/AddTask";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { ROUTE_PATHS } from "../../utils/routePaths";
 
-export default function NavBar({ loggedUser, setLoggedUser }: any) {
+export default function NavBar() {
+  const isUserLogged = localStorage.getItem("token") ? !!localStorage.getItem("token") : false;
+  const navigate = useNavigate();  
+
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
-    setLoggedUser(null);
+    navigate(`${ROUTE_PATHS.Login}`);
   };
 
   return (
@@ -23,8 +26,7 @@ export default function NavBar({ loggedUser, setLoggedUser }: any) {
           <Typography
             variant="h6"
             noWrap
-            component="a"
-            href="/"
+            component="h1"            
             sx={{
               mr: 2,
               display: { xs: "none", md: "flex" },
@@ -38,19 +40,22 @@ export default function NavBar({ loggedUser, setLoggedUser }: any) {
             TooDoo
           </Typography>
 
-          <Box
-            sx={{
-              flexGrow: 1,
-              display: { xs: "none", md: "flex" },
-            }}
-          >
-            <Link to="/" style={{ textDecorationLine: "none" }}>
-              <Button sx={{ my: 2, color: "white", display: "block" }}>
-                Home
-              </Button>
-            </Link>
+          {isUserLogged && (
+            <Box
+              sx={{
+                flexGrow: 1,
+                display: { xs: "none", md: "flex" },
+              }}
+            >
+              <Link
+                to={ROUTE_PATHS.Home}
+                style={{ textDecorationLine: "none" }}
+              >
+                <Button sx={{ my: 2, color: "white", display: "block" }}>
+                  Home
+                </Button>
+              </Link>
 
-            {loggedUser && (
               <Button
                 onClick={handleLogout}
                 sx={{
@@ -62,8 +67,8 @@ export default function NavBar({ loggedUser, setLoggedUser }: any) {
               >
                 Logout
               </Button>
-            )}
-          </Box>
+            </Box>
+          )}
         </Toolbar>
       </Container>
     </AppBar>

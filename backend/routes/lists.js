@@ -25,8 +25,8 @@ module.exports = function (express, pool, jwt, secret) {
         let connection = await pool.getConnection();
 
         let rows = await connection.query(
-          "select l.id, l.name from users join lists l on users.id = l.userId where users.username = ?;",
-          req.user.username
+          "select l.id, l.name from users join lists l on users.id = l.userId where users.id = ?;",
+          req.user.id
         );
         connection.release();
 
@@ -54,12 +54,29 @@ module.exports = function (express, pool, jwt, secret) {
       }
     });
 
-  router.route("/share/:id").get(async function (req, res) {
+  router.route("/share/:uuid").get(async function (req, res) {
     try {
       let connection = await pool.getConnection();
 
       let rows = await connection.query(
-        "select lists.id as listId, userId, name, t.id as todoId, text, completed from lists left join todos t on lists.id = t.listId where lists.uuid = ?;",
+        "select t.id, t.listId, t.text, t.completed from todos t join lists l on t.listId = l.id where l.uuid = ?;",
+        req.params.uuid
+      );
+      connection.release();
+      
+      res.json(rows);
+    } catch (error) {
+      console.log(error);
+      return res.json({ code: 100, status: "Error get share" });
+    }
+  });
+
+  router.route("/:id/todos").get(async function (req, res) {
+    try {
+      let connection = await pool.getConnection();
+
+      let rows = await connection.query(
+        "select t.id as id, listId, text, completed from todos t join lists l on l.id = t.listId where l.id = ?;",
         req.params.id
       );
       connection.release();
@@ -78,12 +95,12 @@ module.exports = function (express, pool, jwt, secret) {
         let connection = await pool.getConnection();
 
         let rows = await connection.query(
-          "select lists.id as listId, userId, name, uuid, t.id as todoId, text, completed from lists left join todos t on lists.id = t.listId where lists.id = ?;",
+          "select * from lists where id = ?;",
           req.params.id
         );
         connection.release();
 
-        res.json(rows);
+        res.json(rows[0]);
       } catch (error) {
         console.log(error);
         return res.json({ code: 100, status: "Error get lists" });

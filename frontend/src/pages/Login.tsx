@@ -6,46 +6,39 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { useState } from "react";
 import jwt_decode from "jwt-decode";
-import api from "../utils/api";
-import { NavLink } from "react-router-dom";
+import { ChangeEvent, useState, MouseEvent } from "react";
+import { NavLink, useNavigate } from "react-router-dom";
+import { loginUser } from "../api/user/loginUser";
+import { ROUTE_PATHS } from "../utils/routePaths";
 
-export default function Login({ setLoggedUser }: any) {
-  const [isFetching, setIsFetching] = useState(false);
-  const [password, setPassword] = useState(null);
-  const [username, setUsername] = useState(null);
+export default function Login() {
+  const [password, setPassword] = useState<string | null>(null);
+  const [username, setUsername] = useState<string | null>(null);
+  const navigate = useNavigate();
 
-  const handleSubmit = (event: any) => {
+  const handleSubmit = (event: MouseEvent<HTMLElement>) => {
     event.preventDefault();
 
-    const login = async () => {
-      setIsFetching(true);
-      
-      await api
-        .post("/users/login", { username, password })
-        .then((res: any) => {
-          localStorage.setItem("token", res.data.token);
-          const decoded = jwt_decode(res.data.token);
-          localStorage.setItem("user", JSON.stringify(decoded));
-          setLoggedUser(username);
-        })
-        .catch((err) => {
-          console.log("Login error: ", err.response);
-        })
-        .finally(() => {
-          setIsFetching(false);
-        });
-    };
-
-    login();
+    loginUser(username, password)
+      .then((token: string) => {
+        localStorage.setItem("token", token);
+        const decoded = jwt_decode(token);
+        localStorage.setItem("user", JSON.stringify(decoded));
+      })
+      .catch((err) => {
+        console.log("Login error: ", err.response);
+      })
+      .finally(() => {
+        navigate(`${ROUTE_PATHS.Home}`);
+      });
   };
 
-  const handlePasswordChange = (event: any) => {
+  const handlePasswordChange = (event: ChangeEvent<HTMLInputElement>) => {
     setPassword(event.target.value);
   };
 
-  const handleUsernameChange = (event: any) => {
+  const handleUsernameChange = (event: ChangeEvent<HTMLInputElement>) => {
     setUsername(event.target.value);
   };
 
@@ -96,12 +89,14 @@ export default function Login({ setLoggedUser }: any) {
               Login
             </Button>
             <Button variant="outlined">
-              <NavLink to="/register" style={{ textDecorationLine: "none" }}>
+              <NavLink
+                to={ROUTE_PATHS.Register}
+                style={{ textDecorationLine: "none" }}
+              >
                 Register
               </NavLink>
             </Button>
           </Stack>
-
         </Stack>
       </Box>
     </Container>
